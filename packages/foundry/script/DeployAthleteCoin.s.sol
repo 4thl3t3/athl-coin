@@ -3,8 +3,8 @@ pragma solidity ^0.8.20;
 
 import { console } from "forge-std/Script.sol";
 import "../contracts/AthleteCoin.sol";
+import "../contracts/AthlVestingWallet.sol";
 import "./DeployHelpers.s.sol";
-import "@openzeppelin/contracts/finance/VestingWallet.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 /**
@@ -44,20 +44,7 @@ contract DeployAthleteCoin is ScaffoldETHDeploy {
     uint64 constant THREE_YEARS    = 3 * uint64(365 days);
     uint64 constant EIGHTEEN_MONTHS = 547 days; // 18 months ≈ 547 days
 
-    // -------------------------------------------------------------------------
-    // Beneficiary addresses
-    // TODO: Replace with real addresses before deploying to a live network.
-    //       For local Anvil testing the deployer address is used as a fallback.
-    // -------------------------------------------------------------------------
-    address constant TEAM_BENEFICIARY     = address(0); // replace with team multisig
-    address constant INVESTOR_BENEFICIARY = address(0); // replace with investor multisig
-
     function run() external ScaffoldEthDeployerRunner {
-        // Resolve beneficiaries: fall back to deployer on local Anvil so that
-        // `yarn deploy` works out-of-the-box without editing this file first.
-        address teamBeneficiary     = TEAM_BENEFICIARY     == address(0) ? deployer : TEAM_BENEFICIARY;
-        address investorBeneficiary = INVESTOR_BENEFICIARY == address(0) ? deployer : INVESTOR_BENEFICIARY;
-
         // 1. Deploy AthleteCoin — entire 10B supply minted to the deployer.
         AthleteCoin athl = new AthleteCoin(deployer);
         console.logString(string.concat("AthleteCoin deployed at:  ", vm.toString(address(athl))));
@@ -65,26 +52,39 @@ contract DeployAthleteCoin is ScaffoldETHDeploy {
         uint64 deployTime = uint64(block.timestamp);
 
         // 2. Team vesting wallet
-        //    Nothing is releasable before (deployTime + 1 year).
+        //    Nothing is claimable before (deployTime + 1 year).
         //    After that, tokens unlock linearly over 3 years.
-        VestingWallet teamVesting = new VestingWallet(
-            teamBeneficiary,
+        //    The deployer is the revoker — replace with a treasury multisig before mainnet.
+        AthlVestingWallet teamVesting = new AthlVestingWallet(
+            address(athl),
+            deployer,              // revoker — replace with treasury multisig
             deployTime + ONE_YEAR, // vesting start = end of 1-year cliff
             THREE_YEARS            // linear release over 3 years post-cliff
         );
         athl.safeTransfer(address(teamVesting), TEAM_ALLOCATION);
-        console.logString(string.concat("Team VestingWallet at:    ", vm.toString(address(teamVesting))));
+        console.logString(string.concat("Team AthlVestingWallet at:    ", vm.toString(address(teamVesting))));
+
+        // TODO: Call teamVesting.addBeneficiary(memberAddress, memberAllocation)
+        //       for each team member. Allocations must sum to TEAM_ALLOCATION.
+        //       Example (uses deployer as placeholder for local testing):
+        teamVesting.addBeneficiary(deployer, TEAM_ALLOCATION);
 
         // 3. Investor vesting wallet
-        //    Nothing is releasable before (deployTime + 6 months).
+        //    Nothing is claimable before (deployTime + 6 months).
         //    After that, tokens unlock linearly over 18 months.
-        VestingWallet investorVesting = new VestingWallet(
-            investorBeneficiary,
+        AthlVestingWallet investorVesting = new AthlVestingWallet(
+            address(athl),
+            deployer,                // revoker — replace with treasury multisig
             deployTime + SIX_MONTHS, // vesting start = end of 6-month cliff
             EIGHTEEN_MONTHS          // linear release over 18 months post-cliff
         );
         athl.safeTransfer(address(investorVesting), INVESTOR_ALLOCATION);
-        console.logString(string.concat("Investor VestingWallet at:", vm.toString(address(investorVesting))));
+        console.logString(string.concat("Investor AthlVestingWallet at:", vm.toString(address(investorVesting))));
+
+        // TODO: Call investorVesting.addBeneficiary(investorAddress, investorAllocation)
+        //       for each investor. Allocations must sum to INVESTOR_ALLOCATION.
+        //       Example (uses deployer as placeholder for local testing):
+        investorVesting.addBeneficiary(deployer, INVESTOR_ALLOCATION);
 
         // Remaining 6.5B ATHL stays with the deployer for treasury / ecosystem / liquidity.
         console.logString(
