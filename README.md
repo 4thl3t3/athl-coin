@@ -1,24 +1,42 @@
-# 🏗 Scaffold-ETH 2
+# 🪙 AthleteCoin (ATHL)
 
-<h4 align="center">
-  <a href="https://docs.scaffoldeth.io">Documentation</a> |
-  <a href="https://scaffoldeth.io">Website</a>
-</h4>
-
-🧪 An open-source, up-to-date toolkit for building decentralized applications (dapps) on the Ethereum blockchain. It's designed to make it easier for developers to create and deploy smart contracts and build user interfaces that interact with those contracts.
-
-> [!NOTE]
-> 🤖 Scaffold-ETH 2 is AI-ready! It has everything agents need to build on Ethereum. Check `.agents/`, `.claude/`, `.opencode` or `.cursor/` for more info.
+AthleteCoin is the project's primary ERC-20 token built. It is implemented using the [ERC-20 token implementation](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol) from OpenZeppelin.
 
 ⚙️ Built using NextJS, RainbowKit, Foundry, Wagmi, Viem, and Typescript.
 
-- ✅ **Contract Hot Reload**: Your frontend auto-adapts to your smart contract as you edit it.
-- 🪝 **[Custom hooks](https://docs.scaffoldeth.io/hooks/)**: Collection of React hooks wrapper around [wagmi](https://wagmi.sh/) to simplify interactions with smart contracts with typescript autocompletion.
-- 🧱 [**Components**](https://docs.scaffoldeth.io/components/): Collection of common web3 components to quickly build your frontend.
-- 🔥 **Burner Wallet & Local Faucet**: Quickly test your application with a burner wallet and local faucet.
-- 🔐 **Integration with Wallet Providers**: Connect to different wallet providers and interact with the Ethereum network.
+## Token properties
 
-![Debug Contracts tab](https://github.com/scaffold-eth/scaffold-eth-2/assets/55535804/b237af0c-5027-4849-a5c1-2e31495cccb1)
+| Property | Value |
+|---|---|
+| Name | AthleteCoin |
+| Symbol | ATHL |
+| Total supply | 10,000,000,000 ATHL (fixed — no minting or burning) |
+| Decimals | 18 |
+| Standard | ERC-20 + ERC-2612 (gasless permit) |
+
+## Token distribution
+
+| Recipient | Amount | Vesting schedule |
+|---|---|---|
+| Team | 2,000,000,000 ATHL (20%) | 1-year cliff, then linear over 3 years |
+| Investors | 1,500,000,000 ATHL (15%) | 6-month cliff, then linear over 18 months |
+| Treasury / Ecosystem | 6,500,000,000 ATHL (65%) | Held by deployer — no lock |
+
+Vesting is handled by OpenZeppelin [`VestingWallet`](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/finance/VestingWallet.sol) contracts deployed alongside the token. Beneficiaries claim vested tokens by calling `release(athlAddress)` on their respective vesting wallet.
+
+## Key files
+
+- **Contract:** `packages/foundry/contracts/AthleteCoin.sol`
+- **Deploy script:** `packages/foundry/script/DeployAthleteCoin.s.sol`
+
+## Deploy
+
+```bash
+yarn deploy                                   # deploy all contracts
+yarn deploy --file DeployAthleteCoin.s.sol    # deploy AthleteCoin + vesting wallets only
+```
+
+> **Before deploying to a live network**, replace `TEAM_BENEFICIARY` and `INVESTOR_BENEFICIARY` in `DeployAthleteCoin.s.sol` with the real recipient addresses. On local Anvil these default to the deployer address.
 
 ## Requirements
 
@@ -30,12 +48,10 @@ Before you begin, you need to install the following tools:
 
 ## Quickstart
 
-To get started with Scaffold-ETH 2, follow the steps below:
-
 1. Install dependencies if it was skipped in CLI:
 
 ```
-cd my-dapp-example
+cd athl-coin
 yarn install
 ```
 
@@ -64,38 +80,3 @@ yarn start
 Visit your app on: `http://localhost:3000`. You can interact with your smart contract using the `Debug Contracts` page. You can tweak the app config in `packages/nextjs/scaffold.config.ts`.
 
 Run smart contract test with `yarn foundry:test`
-
-- Edit your smart contracts in `packages/foundry/contracts`
-- Edit your frontend homepage at `packages/nextjs/app/page.tsx`. For guidance on [routing](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and configuring [pages/layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts) checkout the Next.js documentation.
-- Edit your deployment scripts in `packages/foundry/script`
-
-## 🚀 Setup ERC-20 Token Extension
-
-This extension introduces an ERC-20 token contract and demonstrates how to use interact with it, including getting a holder balance and transferring tokens.
-
-The ERC-20 Token Standard introduces a standard for Fungible Tokens ([EIP-20](https://eips.ethereum.org/EIPS/eip-20)), in other words, each Token is exactly the same (in type and value) as any other Token.
-
-The ERC-20 token contract is implemented using the [ERC-20 token implementation](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol) from OpenZeppelin.
-
-### Setup
-
-Deploy your contract running ```yarn deploy```
-
-### Interact with the token
-
-Start the front-end with ```yarn start``` and go to the _/erc20_ page to interact with your deployed ERC-20 token.
-
-You can check the code at ```packages/nextjs/app/erc20/page.tsx```.
-
-
-## Documentation
-
-Visit our [docs](https://docs.scaffoldeth.io) to learn how to start building with Scaffold-ETH 2.
-
-To know more about its features, check out our [website](https://scaffoldeth.io).
-
-## Contributing to Scaffold-ETH 2
-
-We welcome contributions to Scaffold-ETH 2!
-
-Please see [CONTRIBUTING.MD](https://github.com/scaffold-eth/scaffold-eth-2/blob/main/CONTRIBUTING.md) for more information and guidelines for contributing to Scaffold-ETH 2.
