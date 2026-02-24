@@ -3,7 +3,6 @@ pragma solidity ^0.8.19;
 
 import "forge-std/Script.sol";
 import "forge-std/Vm.sol";
-import "solidity-bytes-utils/BytesLib.sol";
 
 /**
  * @dev Temp Vm implementation
@@ -48,24 +47,16 @@ contract VerifyAll is Script {
             abi.decode(vm.parseJson(content, searchStr(currTransactionIdx, "contractName")), (string));
         address contractAddr =
             abi.decode(vm.parseJson(content, searchStr(currTransactionIdx, "contractAddress")), (address));
-        bytes memory deployedBytecode =
-            abi.decode(vm.parseJson(content, searchStr(currTransactionIdx, "transaction.input")), (bytes));
-        bytes memory compiledBytecode =
-            abi.decode(vm.parseJson(_getCompiledBytecode(contractName), ".bytecode.object"), (bytes));
-        bytes memory constructorArgs = BytesLib.slice(
-            deployedBytecode, compiledBytecode.length, deployedBytecode.length - compiledBytecode.length
-        );
 
-        string[] memory inputs = new string[](9);
+        string[] memory inputs = new string[](8);
         inputs[0] = "forge";
         inputs[1] = "verify-contract";
         inputs[2] = vm.toString(contractAddr);
         inputs[3] = contractName;
         inputs[4] = "--chain";
         inputs[5] = vm.toString(block.chainid);
-        inputs[6] = "--constructor-args";
-        inputs[7] = vm.toString(constructorArgs);
-        inputs[8] = "--watch";
+        inputs[6] = "--guess-constructor-args";
+        inputs[7] = "--watch";
 
         FfiResult memory f = tempVm(address(vm)).tryFfi(inputs);
 
@@ -89,12 +80,6 @@ contract VerifyAll is Script {
         } catch {
             return false;
         }
-    }
-
-    function _getCompiledBytecode(string memory contractName) internal view returns (string memory compiledBytecode) {
-        string memory root = vm.projectRoot();
-        string memory path = string.concat(root, "/out/", contractName, ".sol/", contractName, ".json");
-        compiledBytecode = vm.readFile(path);
     }
 
     function searchStr(uint96 idx, string memory searchKey) internal pure returns (string memory) {
