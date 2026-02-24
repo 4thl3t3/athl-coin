@@ -52,6 +52,7 @@ contract AthlVestingWallet {
     // -------------------------------------------------------------------------
     error NotRevoker();
     error ZeroAddress();
+    error ZeroAllocation();
     error AlreadyAdded(address beneficiary);
     error NotABeneficiary(address beneficiary);
     error AlreadyRevoked(address beneficiary);
@@ -118,6 +119,7 @@ contract AthlVestingWallet {
     function addBeneficiary(address beneficiary, uint256 allocation) external {
         if (msg.sender != revoker) revert NotRevoker();
         if (beneficiary == address(0)) revert ZeroAddress();
+        if (allocation == 0) revert ZeroAllocation();
         if (_beneficiaries[beneficiary].allocation != 0) revert AlreadyAdded(beneficiary);
         _beneficiaries[beneficiary].allocation = allocation;
         emit BeneficiaryAdded(beneficiary, allocation);
