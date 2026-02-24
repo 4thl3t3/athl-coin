@@ -115,6 +115,12 @@ contract AthlVestingWalletTest is Test {
         wallet.addBeneficiary(address(0), 1 ether);
     }
 
+    function test_RevertWhen_AddBeneficiary_ZeroAllocation() public {
+        vm.prank(revoker);
+        vm.expectRevert(AthlVestingWallet.ZeroAllocation.selector);
+        wallet.addBeneficiary(charlie, 0);
+    }
+
     function test_RevertWhen_AddBeneficiary_AlreadyAdded() public {
         vm.prank(revoker);
         vm.expectRevert(abi.encodeWithSelector(AthlVestingWallet.AlreadyAdded.selector, alice));
