@@ -78,11 +78,18 @@ async function selectOrCreateKeystore() {
       return new Promise((resolve, reject) => {
         const importProcess = spawn(
           "cast",
-          ["wallet", "import", keystoreName, "--private-key", privateKey],
+          ["wallet", "import", keystoreName, "--interactive"],
           {
-            stdio: "inherit",
+            stdio: ["pipe", "inherit", "inherit"],
           }
         );
+
+        // Pass private key via stdin to avoid exposure in process listing (ps aux).
+        // cast reads the private key from stdin when it is a pipe, then reads
+        // the keystore password from /dev/tty directly (via rpassword), so the
+        // user is still prompted interactively for their password.
+        importProcess.stdin.write(privateKey + "\n");
+        importProcess.stdin.end();
 
         importProcess.on("close", (code) => {
           if (code === 0) {
@@ -121,7 +128,7 @@ async function selectOrCreateKeystore() {
 
 // Run the selection if this script is called directly
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  selectKeystore()
+  selectOrCreateKeystore()
     .then((keystore) => {
       console.log("\n🔑 Selected keystore:", keystore);
     })
