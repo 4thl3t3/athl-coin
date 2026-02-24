@@ -14,17 +14,17 @@ const ERC20: NextPage = () => {
   const [amount, setAmount] = useState<string>("");
 
   const { data: balance } = useScaffoldReadContract({
-    contractName: "SE2Token",
+    contractName: "AthleteCoin",
     functionName: "balanceOf",
     args: [connectedAddress],
   });
 
   const { data: totalSupply } = useScaffoldReadContract({
-    contractName: "SE2Token",
+    contractName: "AthleteCoin",
     functionName: "totalSupply",
   });
 
-  const { writeContractAsync: writeSE2TokenAsync } = useScaffoldWriteContract("SE2Token");
+  const { writeContractAsync: writeAthleteCoinAsync } = useScaffoldWriteContract("AthleteCoin");
 
   return (
     <>
@@ -87,20 +87,7 @@ const ERC20: NextPage = () => {
             <p className="y-2 mr-2 font-bold text-2xl">Your Balance:</p>
             <p className="text-xl">{balance ? formatEther(balance) : 0} tokens</p>
           </div>
-          <div className="flex justify-center items-center space-x-2 flex-col sm:flex-row mb-6">
-            <button
-              className="btn btn-accent text-lg px-12 mt-2"
-              onClick={async () => {
-                try {
-                  await writeSE2TokenAsync({ functionName: "mint", args: [connectedAddress, parseEther("100")] });
-                } catch (e) {
-                  console.error("Error while minting token", e);
-                }
-              }}
-            >
-              Mint 100 Tokens
-            </button>
-          </div>
+
           <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center w-full md:w-2/4 rounded-3xl mt-10">
             <h3 className="text-2xl font-bold">Transfer Tokens</h3>
             <div className="flex flex-col items-center justify-between w-full lg:w-3/5 px-2 mt-4">
@@ -136,7 +123,7 @@ const ERC20: NextPage = () => {
                 disabled={!toAddress || !amount}
                 onClick={async () => {
                   try {
-                    await writeSE2TokenAsync({ functionName: "transfer", args: [toAddress, parseEther(amount)] });
+                    await writeAthleteCoinAsync({ functionName: "transfer", args: [toAddress, parseEther(amount)] });
                     setToAddress("");
                     setAmount("");
                   } catch (e) {
