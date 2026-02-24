@@ -8,13 +8,16 @@ import { readFileSync } from "fs";
 import { parse } from "toml";
 import { ethers } from "ethers";
 
-const ALCHEMY_API_KEY =
-  process.env.ALCHEMY_API_KEY || "oKxs-03sij-U_N0iOlrSsZFr29-IqbuF";
-
 // Load environment variables
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 dotenv.config({ path: join(__dirname, "..", ".env") });
+
+const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY;
+if (!ALCHEMY_API_KEY)
+  throw new Error(
+    "ALCHEMY_API_KEY environment variable is not set. Please add it to packages/foundry/.env file."
+  );
 
 async function getBalanceForEachNetwork(address) {
   try {
