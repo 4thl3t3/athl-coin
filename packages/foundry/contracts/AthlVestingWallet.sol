@@ -53,6 +53,7 @@ contract AthlVestingWallet {
     error NotRevoker();
     error ZeroAddress();
     error ZeroAllocation();
+    error ZeroDuration();
     error AlreadyAdded(address beneficiary);
     error NotABeneficiary(address beneficiary);
     error AlreadyRevoked(address beneficiary);
@@ -99,6 +100,7 @@ contract AthlVestingWallet {
      */
     constructor(address _token, address _revoker, uint64 _start, uint64 _duration) {
         if (_token == address(0) || _revoker == address(0)) revert ZeroAddress();
+        if (_duration == 0) revert ZeroDuration();
         token = IERC20(_token);
         revoker = _revoker;
         start = _start;
