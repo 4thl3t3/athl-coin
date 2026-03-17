@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.20 <0.9.0;
+pragma solidity ^0.8.28;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import { ERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 
 /**
  * @title AthleteCoin (ATHL)
