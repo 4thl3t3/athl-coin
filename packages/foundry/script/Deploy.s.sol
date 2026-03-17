@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "./DeployHelpers.s.sol";
+import { ScaffoldETHDeploy } from "./DeployHelpers.s.sol";
 import { DeployAthleteCoin } from "./DeployAthleteCoin.s.sol";
 
 /**
